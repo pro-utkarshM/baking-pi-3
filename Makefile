@@ -12,11 +12,14 @@ ARMGNU ?= arm-none-eabi
 # The intermediate directory for compiled object files.
 BUILD = build/
 
+# The lesson kernel to compile
+LESSON ?= ok01
+
 # The directory in which source files are stored.
-SOURCE = source/
+SOURCE = src/$(LESSON)/
 
 # The name of the output file to generate.
-TARGET = kernel.img
+TARGET = kernel8b-32.img
 
 # The name of the assembler listing file to generate.
 LIST = kernel.list
@@ -26,6 +29,9 @@ MAP = kernel.map
 
 # The name of the linker script to use.
 LINKER = kernel.ld
+
+# The names of libraries to use.
+LIBRARIES := csud
 
 # The names of all object files that must be generated. Deduced from the 
 # assembly code files in source.
@@ -47,18 +53,18 @@ $(TARGET) : $(BUILD)output.elf
 
 # Rule to make the elf file.
 $(BUILD)output.elf : $(OBJECTS) $(LINKER)
-	$(ARMGNU)-ld --no-undefined $(OBJECTS) -Map $(MAP) -o $(BUILD)output.elf -T $(LINKER)
+	$(ARMGNU)-ld --no-undefined $(OBJECTS) -L. $(patsubst %,-l %,$(LIBRARIES)) -Map $(MAP) -o $(BUILD)output.elf -T $(LINKER)
 
 # Rule to make the object files.
-$(BUILD)%.o: $(SOURCE)%.s $(BUILD)
+$(BUILD)%.o: $(SOURCE)%.s
 	$(ARMGNU)-as -I $(SOURCE) $< -o $@
 
 $(BUILD):
-	mkdir $@
+	@mkdir $@
 
 # Rule to clean files.
 clean : 
-	-rm -rf $(BUILD)
-	-rm -f $(TARGET)
-	-rm -f $(LIST)
-	-rm -f $(MAP)
+	@rm -f $(BUILD)/*.o $(BUILD)/*.elf
+	@rm -f $(TARGET)
+	@rm -f $(LIST)
+	@rm -f $(MAP)

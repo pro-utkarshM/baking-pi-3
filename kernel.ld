@@ -1,39 +1,26 @@
-/******************************************************************************
-*	kernel.ld
-*	 by Alex Chadwick
-*
-*	A linker script for generation of raspberry pi kernel images.
-******************************************************************************/
+MEMORY
+{
+  /*
+   * Memory for the stack and sections
+   */
+  RAM (rwx)  : ORIGIN = 0x8000, LENGTH = 1024K
+}
 
 SECTIONS {
-	/*
-	* First and formost we need the .init section, containing the code to 
-        * be run first. We allow room for the ATAGs and stack and conform to 
-        * the bootloader's expectation by putting this code at 0x8000.
-	*/
-	.init 0x8000 : {
-		*(.init)
-	}
-	
-	/* 
-	* Next we put the rest of the code.
-	*/
-	.text : {
-		*(.text)
-	}
-	
-	/* 
-	* Next we put the data.
-	*/
-	.data : {
-		*(.data)
-	}
+  /* Put the initialization code at 0x8000, leaving room for ARM
+   * and the stack. It also conforms to the standard expectations.
+   */
+  .init : {
+    *(.init)
+  } > RAM
 
-	/*
-	* Finally comes everything else. A fun trick here is to put all other 
-	* sections into this section, which will be discarded by default.
-	*/
-	/DISCARD/ : {
-		*(*)
-	}
+  /* Put the rest of code next */
+  .text : {
+    *(.text)
+  } > RAM
+
+  /* Put the data after the code */
+  .data : {
+    *(.data)
+  } > RAM
 }
