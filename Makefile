@@ -19,7 +19,7 @@ LESSON ?= ok01
 SOURCE = src/$(LESSON)/
 
 # The name of the output file to generate.
-TARGET = kernel8b-32.img
+TARGET = kernel8-32.img
 
 # The name of the assembler listing file to generate.
 LIST = kernel.list
